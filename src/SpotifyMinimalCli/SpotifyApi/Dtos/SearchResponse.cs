@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApiDtos;
+namespace SpotifyMinimalCli.SpotifyApi.Dtos;
 
 public class SearchResponse
 {

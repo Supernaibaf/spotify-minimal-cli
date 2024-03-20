@@ -4,8 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Refit;
-using SpotifyMinimalCli;
 using SpotifyMinimalCli.Commands;
+using SpotifyMinimalCli.SpotifyApi;
 
 var executableDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 if (executableDirectory == null)

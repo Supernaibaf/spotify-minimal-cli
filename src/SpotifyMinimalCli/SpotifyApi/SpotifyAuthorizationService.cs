@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
-using SpotifyMinimalCli.SpotifyApiDtos;
+using SpotifyMinimalCli.SpotifyApi.Dtos;
 
-namespace SpotifyMinimalCli;
+namespace SpotifyMinimalCli.SpotifyApi;
 
 public class SpotifyAuthorizationService(
     IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,

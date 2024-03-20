@@ -1,7 +1,7 @@
 using Refit;
-using SpotifyMinimalCli.SpotifyApiDtos;
+using SpotifyMinimalCli.SpotifyApi.Dtos;
 
-namespace SpotifyMinimalCli;
+namespace SpotifyMinimalCli.SpotifyApi;
 
 public interface ISpotifyAccountApi
 {

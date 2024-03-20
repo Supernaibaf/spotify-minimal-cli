@@ -1,6 +1,6 @@
 using Refit;
 
-namespace SpotifyMinimalCli.SpotifyApiDtos;
+namespace SpotifyMinimalCli.SpotifyApi.Dtos;
 
 public class TokenRequest
 {
