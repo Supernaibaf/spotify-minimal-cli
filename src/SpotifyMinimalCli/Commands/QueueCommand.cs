@@ -39,7 +39,10 @@ public static class QueueCommand
         }
     }
 
-    private static async Task<Result<TrackObject, string>> SearchTrack(string trackName, ISpotifyApi spotifyApi, string token)
+    private static async Task<Result<TrackObject, string>> SearchTrack(
+        string trackName,
+        ISpotifyApi spotifyApi,
+        string token)
     {
         var searchResponse = await spotifyApi.SearchAsync(
             new SearchRequest
@@ -52,12 +55,12 @@ public static class QueueCommand
 
         if (!searchResponse.IsSuccessStatusCode)
         {
-            return searchResponse.Error.Message;
+            return $"Search for \"{trackName}\" failed: {searchResponse.Error.Message}";
         }
 
         if (searchResponse.Content.Tracks == null || searchResponse.Content.Tracks.Items.Count == 0)
         {
-            return $"Unable to find track with name {trackName}";
+            return $"Unable to find track with name \"{trackName}\"";
         }
 
         return searchResponse.Content.Tracks.Items.First();

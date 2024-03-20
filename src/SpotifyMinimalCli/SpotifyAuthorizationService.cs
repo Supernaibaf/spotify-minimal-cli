@@ -20,6 +20,6 @@ public class SpotifyAuthorizationService(
 
         return tokenResponse.IsSuccessStatusCode
             ? Result.Success<string, string>(tokenResponse.Content.AccessToken)
-            : Result.Failure<string, string>(tokenResponse.Error.Message);
+            : Result.Failure<string, string>($"Fetching authorization token failed: {tokenResponse.Error.Message}");
     }
 }
