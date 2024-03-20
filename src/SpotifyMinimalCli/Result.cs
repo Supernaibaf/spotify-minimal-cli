@@ -2,11 +2,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SpotifyMinimalCli;
 
-public struct Result<TSuccess, TError> : IEquatable<Result<TSuccess, TError>>
+public readonly struct Result<TSuccess, TError> : IEquatable<Result<TSuccess, TError>>
 {
-    public TSuccess? Value { get; private set; }
+    public TSuccess? Value { get; private init; }
 
-    public TError? Error { get; private set; }
+    public TError? Error { get; private init; }
 
     [MemberNotNullWhen(true, nameof(Value))]
     [MemberNotNullWhen(false, nameof(Error))]
@@ -48,6 +48,26 @@ public struct Result<TSuccess, TError> : IEquatable<Result<TSuccess, TError>>
     public static bool operator !=(Result<TSuccess, TError> left, Result<TSuccess, TError> right)
     {
         return !(left == right);
+    }
+
+    public static implicit operator Result<TSuccess, TError>(TSuccess value)
+    {
+        return new Result<TSuccess, TError>(value);
+    }
+
+    public static implicit operator Result<TSuccess, TError>(TError error)
+    {
+        return new Result<TSuccess, TError>(error);
+    }
+
+    public Result<TSuccess, TError> ToResult(TSuccess value)
+    {
+        return new Result<TSuccess, TError>(value);
+    }
+
+    public Result<TSuccess, TError> ToResult(TError error)
+    {
+        return new Result<TSuccess, TError>(error);
     }
 }
 
