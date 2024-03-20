@@ -8,7 +8,8 @@ public static class QueueCommand
 {
     public static void AddQueueCommand(this CoconaApp builder)
     {
-        _ = builder.AddCommand("queue", Queue);
+        _ = builder.AddCommand("queue", Queue)
+            .WithDescription("Adds a track to the queue");
     }
 
     private static async Task Queue(
