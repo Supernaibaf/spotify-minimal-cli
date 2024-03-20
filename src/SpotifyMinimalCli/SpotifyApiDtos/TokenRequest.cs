@@ -1,15 +1,15 @@
-using System.Text.Json.Serialization;
+using Refit;
 
 namespace SpotifyMinimalCli.SpotifyApiDtos;
 
 public class TokenRequest
 {
-    [JsonPropertyName("grant_type")]
+    [AliasAs("grant_type")]
     public required string GrantType { get; init; }
 
-    [JsonPropertyName("client_id")]
+    [AliasAs("client_id")]
     public required string ClientId { get; init; }
 
-    [JsonPropertyName("client_secret")]
+    [AliasAs("client_secret")]
     public required string ClientSecret { get; init; }
 }

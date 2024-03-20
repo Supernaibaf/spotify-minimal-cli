@@ -13,6 +13,9 @@ builder.Configuration
     .AddUserSecrets<Program>();
 
 builder.Services.AddOptions<SpotifyAccountApiConfig>().BindConfiguration(SpotifyAccountApiConfig.Key);
+builder.Services.AddOptions<SpotifyApiConfig>().BindConfiguration(SpotifyApiConfig.Key);
+
+builder.Services.AddTransient<ISpotifyAuthorizationService, SpotifyAuthorizationService>();
 
 builder.Services
     .AddRefitClient<ISpotifyAccountApi>()
@@ -23,31 +26,55 @@ builder.Services
             client.BaseAddress = new Uri(config.Value.BaseAddress);
         });
 
+builder.Services
+    .AddRefitClient<ISpotifyApi>()
+    .ConfigureHttpClient(
+        (services, client) =>
+        {
+            var config = services.GetRequiredService<IOptions<SpotifyApiConfig>>();
+            client.BaseAddress = new Uri(config.Value.BaseAddress);
+        });
+
 var app = builder.Build();
 app.AddCommand(
     "queue",
-    async ([Argument] string[] titles, ISpotifyAccountApi spotifyAccountApi, IOptions<SpotifyAccountApiConfig> accountApiConfig) =>
+    async (
+        [Argument] string[] trackNames,
+        ISpotifyAuthorizationService authorizationService,
+        ISpotifyApi spotifyApi) =>
     {
-        var tokenResponse = await spotifyAccountApi.RequestApiTokenAsync(
-            new TokenRequest
+        var tokenResult = await authorizationService.GetAuthorizationToken();
+
+        if (!tokenResult.IsSuccess)
+        {
+            await Console.Error.WriteLineAsync(tokenResult.Error);
+            return;
+        }
+
+        foreach (var trackName in trackNames)
+        {
+            var searchResponse = await spotifyApi.SearchAsync(
+                new SearchRequest
+                {
+                    Query = trackName,
+                    Type = SearchType.Track,
+                    Limit = 1,
+                },
+                tokenResult.Value);
+
+            if (!searchResponse.IsSuccessStatusCode)
             {
-                GrantType = accountApiConfig.Value.GrantType,
-                ClientId = accountApiConfig.Value.ClientId,
-                ClientSecret = accountApiConfig.Value.ClientSecret,
-            });
+                await Console.Error.WriteLineAsync(searchResponse.Error.Message);
+                continue;
+            }
 
-        if (tokenResponse.IsSuccessStatusCode)
-        {
-            Console.WriteLine(tokenResponse.Content.AccessToken);
-        }
-        else
-        {
-            Console.WriteLine(tokenResponse.Error);
-        }
+            if (searchResponse.Content.Tracks == null || searchResponse.Content.Tracks.Items.Count == 0)
+            {
+                await Console.Error.WriteLineAsync($"Unable to find track with name {trackName}");
+                continue;
+            }
 
-        foreach (var title in titles)
-        {
-            Console.WriteLine($"queued {title}");
+            Console.WriteLine($"queued {searchResponse.Content.Tracks.Items.First().Name}");
         }
     });
 
