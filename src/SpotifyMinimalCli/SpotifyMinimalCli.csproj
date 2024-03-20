@@ -10,4 +10,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile><!-- Required for IDE0005 to be reported -->
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Cocona" Version="2.2.0"/>
+  </ItemGroup>
+
 </Project>

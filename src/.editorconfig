@@ -258,6 +258,8 @@ dotnet_diagnostic.SA1615.severity = none # Element return values must be documen
 dotnet_diagnostic.SA1618.severity = none # Generic type parameters should be documented
 dotnet_diagnostic.SA1633.severity = none # File should have header
 
+dotnet_diagnostic.CA2007.severity = none # Consider calling ConfigureAwait on the awaited task
+
 [*/**Test.cs]
 dotnet_diagnostic.CA1707.severity = none # Identifiers should not contain underscores
 dotnet_diagnostic.SA1201.severity = none # A field should not follow a method
