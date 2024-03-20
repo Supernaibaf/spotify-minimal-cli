@@ -1,4 +1,5 @@
-﻿using Cocona;
+﻿using System.Reflection;
+using Cocona;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -6,9 +7,17 @@ using Refit;
 using SpotifyMinimalCli;
 using SpotifyMinimalCli.Commands;
 
+var executableDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+if (executableDirectory == null)
+{
+    await Console.Error.WriteLineAsync("Unable to get executable directory name");
+    return;
+}
+
 var builder = CoconaApp.CreateBuilder();
 
 builder.Configuration
+    .SetBasePath(executableDirectory)
     .AddJsonFile("appsettings.json", false)
     .AddUserSecrets<Program>();
 
@@ -39,4 +48,4 @@ var app = builder.Build();
 
 app.AddQueueCommand();
 
-app.Run();
+await app.RunAsync();
