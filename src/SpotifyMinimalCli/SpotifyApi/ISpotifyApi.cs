@@ -14,4 +14,7 @@ public interface ISpotifyApi
 
     [Post("/v1/me/player/previous")]
     Task<IApiResponse> PreviousAsync([Query] SkipToPreviousRequest request, [Authorize] string token);
+
+    [Post("/v1/me/player/queue")]
+    Task<IApiResponse> QueueTrackAsync([Query] AddItemToPlaybackQueueRequest request, [Authorize] string token);
 }

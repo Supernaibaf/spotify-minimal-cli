@@ -1,5 +1,6 @@
 using Cocona;
 using SpotifyMinimalCli.SpotifyApi;
+using SpotifyMinimalCli.SpotifyApi.Player;
 using SpotifyMinimalCli.SpotifyApi.Search;
 
 namespace SpotifyMinimalCli.Commands;
@@ -28,14 +29,26 @@ public static class QueueCommand
         foreach (var trackName in trackNames)
         {
             var searchResult = await SearchTrack(trackName, spotifyApi, tokenResult.Value);
-            if (searchResult.IsSuccess)
-            {
-                Console.WriteLine($"Queued \"{searchResult.Value.Name}\"");
-            }
-            else
+            if (!searchResult.IsSuccess)
             {
                 await Console.Error.WriteLineAsync(searchResult.Error);
+                return;
             }
+
+            var queueResult = await spotifyApi.QueueTrackAsync(
+                new AddItemToPlaybackQueueRequest
+                {
+                    Uri = searchResult.Value.Uri,
+                },
+                tokenResult.Value);
+            if (!queueResult.IsSuccessStatusCode)
+            {
+                await Console.Error.WriteLineAsync(
+                    $"Unable to queue track \"{trackName}\": {queueResult.Error.GetSpotifyResponseErrorMessage()}");
+                return;
+            }
+
+            Console.WriteLine($"Queued \"{searchResult.Value.Name}\"");
         }
     }
 
@@ -55,7 +68,7 @@ public static class QueueCommand
 
         if (!searchResponse.IsSuccessStatusCode)
         {
-            return $"Search for \"{trackName}\" failed: {searchResponse.Error.Message}";
+            return $"Search for \"{trackName}\" failed: {searchResponse.Error.GetSpotifyResponseErrorMessage()}";
         }
 
         if (searchResponse.Content.Tracks == null || searchResponse.Content.Tracks.Items.Count == 0)
