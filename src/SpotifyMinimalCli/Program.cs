@@ -55,5 +55,6 @@ var app = builder.Build();
 
 app.AddQueueCommand();
 app.AddNextCommand();
+app.AddPreviousCommand();
 
 await app.RunAsync();
