@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApi.Dtos;
+namespace SpotifyMinimalCli.SpotifyApi.Search;
 
 public class Tracks
 {

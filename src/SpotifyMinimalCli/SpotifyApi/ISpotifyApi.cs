@@ -1,5 +1,5 @@
 using Refit;
-using SpotifyMinimalCli.SpotifyApi.Dtos;
+using SpotifyMinimalCli.SpotifyApi.Search;
 
 namespace SpotifyMinimalCli.SpotifyApi;
 

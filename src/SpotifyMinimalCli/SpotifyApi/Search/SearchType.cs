@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApi.Dtos;
+namespace SpotifyMinimalCli.SpotifyApi.Search;
 
 public enum SearchType
 {

@@ -1,6 +1,6 @@
 using Cocona;
 using SpotifyMinimalCli.SpotifyApi;
-using SpotifyMinimalCli.SpotifyApi.Dtos;
+using SpotifyMinimalCli.SpotifyApi.Search;
 
 namespace SpotifyMinimalCli.Commands;
 
