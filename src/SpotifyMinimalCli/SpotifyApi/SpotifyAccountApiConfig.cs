@@ -4,7 +4,7 @@ public class SpotifyAccountApiConfig
 {
     public const string Key = "SpotifyAccountApi";
 
-    public required string BaseAddress { get; init; }
+    public required Uri BaseAddress { get; init; }
 
     public required string GrantType { get; init; }
 

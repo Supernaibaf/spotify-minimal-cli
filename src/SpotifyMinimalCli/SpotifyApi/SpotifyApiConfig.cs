@@ -4,5 +4,5 @@ public class SpotifyApiConfig
 {
     public const string Key = "SpotifyApi";
 
-    public required string BaseAddress { get; init; }
+    public required Uri BaseAddress { get; init; }
 }

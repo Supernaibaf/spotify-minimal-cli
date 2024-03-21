@@ -6,7 +6,7 @@ namespace SpotifyMinimalCli.SpotifyApi;
 public interface ISpotifyAccountApi
 {
     [Post("/api/token")]
-    Task<ApiResponse<TokenResponse>> RequestApiTokenAsync(
+    Task<ApiResponse<AccessTokenResponse>> RequestAccessTokenAsync(
         [Body(BodySerializationMethod.UrlEncoded)]
-        TokenRequest request);
+        AccessTokenRequest request);
 }

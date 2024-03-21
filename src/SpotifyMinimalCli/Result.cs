@@ -69,6 +69,18 @@ public readonly struct Result<TSuccess, TError> : IEquatable<Result<TSuccess, TE
     {
         return new Result<TSuccess, TError>(error);
     }
+
+    public Result<TNewSuccess, TNewError> Map<TNewSuccess, TNewError>(
+        Func<TSuccess, TNewSuccess> mapSuccess,
+        Func<TError, TNewError> mapError)
+    {
+        if (IsSuccess)
+        {
+            return mapSuccess(Value);
+        }
+
+        return mapError(Error);
+    }
 }
 
 public static class Result

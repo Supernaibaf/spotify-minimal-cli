@@ -17,7 +17,7 @@ public static class QueueCommand
         ISpotifyAuthorizationService authorizationService,
         ISpotifyApi spotifyApi)
     {
-        var tokenResult = await authorizationService.GetAuthorizationToken();
+        var tokenResult = await authorizationService.GetAccessToken();
 
         if (!tokenResult.IsSuccess)
         {

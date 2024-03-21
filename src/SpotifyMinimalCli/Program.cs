@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
 using Cocona;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Refit;
+using SpotifyMinimalCli.AuthenticationCallback;
 using SpotifyMinimalCli.Commands;
 using SpotifyMinimalCli.SpotifyApi;
 
@@ -21,9 +22,11 @@ builder.Configuration
     .AddJsonFile("appsettings.json", false)
     .AddUserSecrets<Program>();
 
+builder.Services.AddOptions<AuthenticationCallbackConfig>().BindConfiguration(AuthenticationCallbackConfig.Key);
 builder.Services.AddOptions<SpotifyAccountApiConfig>().BindConfiguration(SpotifyAccountApiConfig.Key);
 builder.Services.AddOptions<SpotifyApiConfig>().BindConfiguration(SpotifyApiConfig.Key);
 
+builder.Services.AddTransient<IAuthenticationCallbackServer, AuthenticationCallbackServer>();
 builder.Services.AddTransient<ISpotifyAuthorizationService, SpotifyAuthorizationService>();
 
 builder.Services
@@ -32,7 +35,11 @@ builder.Services
         (services, client) =>
         {
             var config = services.GetRequiredService<IOptions<SpotifyAccountApiConfig>>();
-            client.BaseAddress = new Uri(config.Value.BaseAddress);
+
+            client.BaseAddress = config.Value.BaseAddress;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Basic",
+                Convert.ToBase64String(Encoding.UTF8.GetBytes($"{config.Value.ClientId}:{config.Value.ClientSecret}")));
         });
 
 builder.Services
@@ -41,7 +48,7 @@ builder.Services
         (services, client) =>
         {
             var config = services.GetRequiredService<IOptions<SpotifyApiConfig>>();
-            client.BaseAddress = new Uri(config.Value.BaseAddress);
+            client.BaseAddress = config.Value.BaseAddress;
         });
 
 var app = builder.Build();
