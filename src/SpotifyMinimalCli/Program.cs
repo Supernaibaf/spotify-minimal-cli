@@ -4,7 +4,7 @@ using System.Text;
 using Cocona;
 using Microsoft.Extensions.Options;
 using Refit;
-using SpotifyMinimalCli.AuthenticationCallback;
+using SpotifyMinimalCli.Authentication;
 using SpotifyMinimalCli.Commands;
 using SpotifyMinimalCli.SpotifyApi;
 
@@ -26,6 +26,7 @@ builder.Services.AddOptions<AuthenticationCallbackConfig>().BindConfiguration(Au
 builder.Services.AddOptions<SpotifyAccountApiConfig>().BindConfiguration(SpotifyAccountApiConfig.Key);
 builder.Services.AddOptions<SpotifyApiConfig>().BindConfiguration(SpotifyApiConfig.Key);
 
+builder.Services.AddTransient<IAccessTokenStore, AccessTokenStore>();
 builder.Services.AddTransient<IAuthenticationCallbackServer, AuthenticationCallbackServer>();
 builder.Services.AddTransient<ISpotifyAuthorizationService, SpotifyAuthorizationService>();
 

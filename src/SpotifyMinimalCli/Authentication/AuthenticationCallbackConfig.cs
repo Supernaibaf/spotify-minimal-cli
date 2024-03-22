@@ -1,4 +1,4 @@
-namespace SpotifyMinimalCli.AuthenticationCallback;
+namespace SpotifyMinimalCli.Authentication;
 
 public class AuthenticationCallbackConfig
 {

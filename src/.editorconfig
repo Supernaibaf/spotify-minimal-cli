@@ -258,6 +258,7 @@ dotnet_diagnostic.SA1615.severity = none # Element return values must be documen
 dotnet_diagnostic.SA1618.severity = none # Generic type parameters should be documented
 dotnet_diagnostic.SA1633.severity = none # File should have header
 
+dotnet_diagnostic.CA1031.severity = none # Do not catch general exception types
 dotnet_diagnostic.CA2007.severity = none # Consider calling ConfigureAwait on the awaited task
 
 [*/**Test.cs]

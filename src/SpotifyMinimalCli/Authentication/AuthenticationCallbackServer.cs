@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace SpotifyMinimalCli.AuthenticationCallback;
+namespace SpotifyMinimalCli.Authentication;
 
 public class AuthenticationCallbackServer(IOptions<AuthenticationCallbackConfig> authenticationCallbackConfig)
     : IAuthenticationCallbackServer

@@ -24,18 +24,18 @@ public readonly struct Result<TSuccess, TError> : IEquatable<Result<TSuccess, TE
         Error = error;
     }
 
-    public readonly bool Equals(Result<TSuccess, TError> other)
+    public bool Equals(Result<TSuccess, TError> other)
     {
         return EqualityComparer<TSuccess?>.Default.Equals(Value, other.Value) &&
                EqualityComparer<TError?>.Default.Equals(Error, other.Error) && IsSuccess == other.IsSuccess;
     }
 
-    public override readonly bool Equals(object? obj)
+    public override bool Equals(object? obj)
     {
         return obj is Result<TSuccess, TError> other && Equals(other);
     }
 
-    public override readonly int GetHashCode()
+    public override int GetHashCode()
     {
         return HashCode.Combine(Value, Error, IsSuccess);
     }

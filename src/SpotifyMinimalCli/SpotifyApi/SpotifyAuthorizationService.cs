@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
-using SpotifyMinimalCli.AuthenticationCallback;
+using SpotifyMinimalCli.Authentication;
 using SpotifyMinimalCli.SpotifyApi.Authorization;
 
 namespace SpotifyMinimalCli.SpotifyApi;
@@ -8,18 +8,38 @@ namespace SpotifyMinimalCli.SpotifyApi;
 public class SpotifyAuthorizationService(
     ISpotifyAccountApi spotifyAccountApi,
     IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,
-    IAuthenticationCallbackServer authenticationCallbackServer)
+    IAuthenticationCallbackServer authenticationCallbackServer,
+    IAccessTokenStore accessTokenStore)
     : ISpotifyAuthorizationService
 {
     public async Task<Result<string, string>> GetAccessToken()
     {
+        var storedAccessTokenResult = await accessTokenStore.LoadSpotifyAccessTokenAsync();
+        if (storedAccessTokenResult.IsSuccess)
+        {
+            return Result.Success<string, string>(storedAccessTokenResult.Value.AccessToken);
+        }
+
         var callbackCodeResult = await AuthorizeUser();
         if (!callbackCodeResult.IsSuccess)
         {
             return callbackCodeResult;
         }
 
-        return await RequestAccessToken(callbackCodeResult.Value);
+        var newAccessTokenResult = await RequestAccessToken(callbackCodeResult.Value);
+        if (!newAccessTokenResult.IsSuccess)
+        {
+            return Result.Failure<string, string>(newAccessTokenResult.Error);
+        }
+
+        var storeResult =
+            await accessTokenStore.StoreSpotifyAccessTokenAsync(newAccessTokenResult.Value.ToSpotifyAccessToken());
+        if (!storeResult.IsSuccess)
+        {
+            await Console.Error.WriteLineAsync(storeResult.Error);
+        }
+
+        return Result.Success<string, string>(newAccessTokenResult.Value.AccessToken);
     }
 
     private async Task<Result<string, string>> AuthorizeUser()
@@ -36,7 +56,7 @@ public class SpotifyAuthorizationService(
         return callbackCodeResult.Map(success => success, error => $"Login failed: {error}");
     }
 
-    private async Task<Result<string, string>> RequestAccessToken(string code)
+    private async Task<Result<AccessTokenResponse, string>> RequestAccessToken(string code)
     {
         var apiTokenResult = await spotifyAccountApi.RequestAccessTokenAsync(
             new AccessTokenRequest
@@ -48,11 +68,10 @@ public class SpotifyAuthorizationService(
 
         if (apiTokenResult.IsSuccessStatusCode)
         {
-            return Result.Success<string, string>(apiTokenResult.Content.AccessToken);
+            return apiTokenResult.Content;
         }
 
-        return Result.Failure<string, string>(
-            $"Access token request failed: {apiTokenResult.Error.GetSpotifyResponseErrorMessage()}");
+        return $"Access token request failed: {apiTokenResult.Error.GetSpotifyResponseErrorMessage()}";
     }
 
     private static async Task OpenBrowser(Uri authenticationUrl)
