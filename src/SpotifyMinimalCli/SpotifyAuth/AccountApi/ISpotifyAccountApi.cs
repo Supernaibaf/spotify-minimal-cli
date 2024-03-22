@@ -8,4 +8,9 @@ public interface ISpotifyAccountApi
     Task<ApiResponse<AccessTokenResponse>> RequestAccessTokenAsync(
         [Body(BodySerializationMethod.UrlEncoded)]
         AccessTokenRequest request);
+
+    [Post("/api/token")]
+    Task<ApiResponse<RefreshAccessTokenResponse>> RefreshAccessTokenAsync(
+        [Body(BodySerializationMethod.UrlEncoded)]
+        RefreshAccessTokenRequest request);
 }

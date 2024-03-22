@@ -8,7 +8,7 @@ public class SpotifyAccessToken
 
     public required string Scope { get; init; }
 
-    public required int ExpiresIn { get; init; }
+    public required DateTimeOffset ExpiresAt { get; init; }
 
     public required string RefreshToken { get; init; }
 }

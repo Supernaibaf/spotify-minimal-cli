@@ -18,6 +18,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", false)
     .AddUserSecrets<Program>();
 
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSpotifyAuthServices();
 builder.Services.AddSpotifyApiServices();
 

@@ -12,8 +12,11 @@ public class SpotifyAccessTokenMessageHandler(
     ISpotifyAccountApi spotifyAccountApi,
     IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,
     IAuthenticationCallbackServer authenticationCallbackServer,
-    ISpotifyAccessTokenStore spotifyAccessTokenStore) : DelegatingHandler
+    ISpotifyAccessTokenStore spotifyAccessTokenStore,
+    TimeProvider timeProvider) : DelegatingHandler
 {
+    private static readonly TimeSpan MaxTimeUntilAccessTokenExpires = TimeSpan.FromMinutes(10);
+
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
@@ -31,7 +34,7 @@ public class SpotifyAccessTokenMessageHandler(
             return response;
         }
 
-        // get new token and try again
+        // when unauthorized, get new token and try again
         var newAccessTokenResult = await CreateCompletelyNewAccessToken();
         if (newAccessTokenResult.IsSuccess)
         {
@@ -47,7 +50,17 @@ public class SpotifyAccessTokenMessageHandler(
         var storedAccessTokenResult = await spotifyAccessTokenStore.LoadSpotifyAccessTokenAsync();
         if (storedAccessTokenResult.IsSuccess)
         {
-            return storedAccessTokenResult.Value;
+            var accessToken = storedAccessTokenResult.Value;
+            if (accessToken.ExpiresAt - MaxTimeUntilAccessTokenExpires > timeProvider.GetUtcNow())
+            {
+                return accessToken;
+            }
+
+            var refreshedAccessToken = await RefreshAccessToken(accessToken);
+            if (refreshedAccessToken.IsSuccess)
+            {
+                return refreshedAccessToken.Value;
+            }
         }
 
         var accessTokenResult = await CreateCompletelyNewAccessToken();
@@ -57,6 +70,30 @@ public class SpotifyAccessTokenMessageHandler(
         }
 
         return accessTokenResult.Value;
+    }
+
+    private async Task<Result<SpotifyAccessToken, string>> RefreshAccessToken(SpotifyAccessToken accessToken)
+    {
+        var refreshedAccessTokenResponse = await spotifyAccountApi.RefreshAccessTokenAsync(
+            new RefreshAccessTokenRequest
+            {
+                GrantType = "refresh_token",
+                RefreshToken = accessToken.RefreshToken,
+            });
+
+        if (!refreshedAccessTokenResponse.IsSuccessStatusCode)
+        {
+            return $"Access token request failed: {refreshedAccessTokenResponse.Error.Message}";
+        }
+
+        var refreshedAccessToken = refreshedAccessTokenResponse.Content.ToSpotifyAccessToken(accessToken, timeProvider);
+        var storeResult = await spotifyAccessTokenStore.StoreSpotifyAccessTokenAsync(refreshedAccessToken);
+        if (!storeResult.IsSuccess)
+        {
+            await Console.Error.WriteLineAsync(storeResult.Error);
+        }
+
+        return refreshedAccessToken;
     }
 
     private async Task<Result<SpotifyAccessToken, string>> CreateCompletelyNewAccessToken()
@@ -73,7 +110,7 @@ public class SpotifyAccessTokenMessageHandler(
             return newAccessTokenResult.Error;
         }
 
-        var accessToken = newAccessTokenResult.Value.ToSpotifyAccessToken();
+        var accessToken = newAccessTokenResult.Value.ToSpotifyAccessToken(timeProvider);
         var storeResult = await spotifyAccessTokenStore.StoreSpotifyAccessTokenAsync(accessToken);
         if (!storeResult.IsSuccess)
         {
