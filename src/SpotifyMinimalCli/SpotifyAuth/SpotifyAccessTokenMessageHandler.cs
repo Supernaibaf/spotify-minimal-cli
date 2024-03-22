@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using SpotifyMinimalCli.SpotifyAuth.AccessTokenStore;
@@ -20,7 +21,22 @@ public class SpotifyAccessTokenMessageHandler(
         var accessTokenResult = await LoadOrCreateAccessToken();
         if (accessTokenResult.IsSuccess)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResult.Value.AccessToken);
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessTokenResult.Value.AccessToken);
+        }
+
+        var response = await base.SendAsync(request, cancellationToken);
+        if (response.StatusCode != HttpStatusCode.Unauthorized)
+        {
+            return response;
+        }
+
+        // get new token and try again
+        var newAccessTokenResult = await CreateCompletelyNewAccessToken();
+        if (newAccessTokenResult.IsSuccess)
+        {
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", newAccessTokenResult.Value.AccessToken);
         }
 
         return await base.SendAsync(request, cancellationToken);
