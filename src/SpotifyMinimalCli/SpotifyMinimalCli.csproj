@@ -24,4 +24,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="SpotifyAuth\AuthCallback\CallbackPages\FailPage.html"/>
+    <EmbeddedResource Include="SpotifyAuth\AuthCallback\CallbackPages\SuccessPage.html"/>
+  </ItemGroup>
+
 </Project>
