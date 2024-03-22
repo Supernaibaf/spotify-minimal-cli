@@ -19,7 +19,7 @@ public static class ApiExceptionExtensions
             return apiException.Message;
         }
 
-        return spotifyResponseError.Error.Message;
+        return $"{spotifyResponseError.Error.Message} (Status Code {(int)apiException.StatusCode})";
     }
 
     private static bool TryDeserializeSpotifyResponseError(

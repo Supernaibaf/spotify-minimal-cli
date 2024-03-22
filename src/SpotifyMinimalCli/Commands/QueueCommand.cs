@@ -13,7 +13,7 @@ public static class QueueCommand
             .WithDescription("Adds a track to the queue");
     }
 
-    private static async Task Queue(
+    private static async Task<int> Queue(
         [Argument] string[] trackNames,
         ISpotifyAuthorizationService authorizationService,
         ISpotifyApi spotifyApi)
@@ -23,7 +23,7 @@ public static class QueueCommand
         if (!tokenResult.IsSuccess)
         {
             await Console.Error.WriteLineAsync(tokenResult.Error);
-            return;
+            return -1;
         }
 
         foreach (var trackName in trackNames)
@@ -32,7 +32,7 @@ public static class QueueCommand
             if (!searchResult.IsSuccess)
             {
                 await Console.Error.WriteLineAsync(searchResult.Error);
-                return;
+                return -1;
             }
 
             var queueResult = await spotifyApi.QueueTrackAsync(
@@ -45,11 +45,13 @@ public static class QueueCommand
             {
                 await Console.Error.WriteLineAsync(
                     $"Unable to queue track \"{trackName}\": {queueResult.Error.GetSpotifyResponseErrorMessage()}");
-                return;
+                return -1;
             }
 
             Console.WriteLine($"Queued \"{searchResult.Value.Name}\"");
         }
+
+        return 0;
     }
 
     private static async Task<Result<TrackObject, string>> SearchTrack(
