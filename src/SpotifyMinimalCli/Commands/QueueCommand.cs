@@ -37,7 +37,8 @@ public static class QueueCommand
                 return -1;
             }
 
-            Console.WriteLine($"Queued \"{searchResult.Value.Name}\"");
+            Console.WriteLine(
+                $"Queued \"{searchResult.Value.Name}\" from {string.Join(", ", searchResult.Value.Artists.Select(a => a.Name))}");
         }
 
         return 0;
