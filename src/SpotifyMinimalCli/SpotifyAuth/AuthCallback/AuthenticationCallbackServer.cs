@@ -12,7 +12,7 @@ public class AuthenticationCallbackServer(IOptions<AuthenticationCallbackConfig>
 
     public Uri CallbackUrl => new(authenticationCallbackConfig.Value.ServerUrl, CallbackPath);
 
-    public async Task<Result<string, string>> WaitForCallbackCode(string state)
+    public async Task<Result<string, string>> WaitForCallbackCode(string state, CancellationToken cancellationToken)
     {
         string? code = null;
         string? error = null;
@@ -49,13 +49,14 @@ public class AuthenticationCallbackServer(IOptions<AuthenticationCallbackConfig>
 
 #pragma warning disable CA1508
         while (code == null && error == null &&
-               stopwatch.Elapsed < authenticationCallbackConfig.Value.MaxTimeForCallback)
+               stopwatch.Elapsed < authenticationCallbackConfig.Value.MaxTimeForCallback &&
+               !cancellationToken.IsCancellationRequested)
 #pragma warning restore CA1508
         {
-            await Task.Delay(authenticationCallbackConfig.Value.CallbackCheckInterval);
+            await Task.Delay(authenticationCallbackConfig.Value.CallbackCheckInterval, cancellationToken);
         }
 
-        await webApp.StopAsync();
+        await webApp.StopAsync(cancellationToken);
 
 #pragma warning disable CA1508
         return code == null

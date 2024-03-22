@@ -21,7 +21,7 @@ public class SpotifyAccessTokenMessageHandler(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        var accessTokenResult = await LoadOrCreateAccessToken();
+        var accessTokenResult = await LoadOrCreateAccessToken(cancellationToken);
         if (accessTokenResult.IsSuccess)
         {
             request.Headers.Authorization =
@@ -35,7 +35,7 @@ public class SpotifyAccessTokenMessageHandler(
         }
 
         // when unauthorized, get new token and try again
-        var newAccessTokenResult = await CreateCompletelyNewAccessToken();
+        var newAccessTokenResult = await CreateCompletelyNewAccessToken(cancellationToken);
         if (newAccessTokenResult.IsSuccess)
         {
             request.Headers.Authorization =
@@ -45,7 +45,7 @@ public class SpotifyAccessTokenMessageHandler(
         return await base.SendAsync(request, cancellationToken);
     }
 
-    private async Task<Result<SpotifyAccessToken, string>> LoadOrCreateAccessToken()
+    private async Task<Result<SpotifyAccessToken, string>> LoadOrCreateAccessToken(CancellationToken cancellationToken)
     {
         var storedAccessTokenResult = await spotifyAccessTokenStore.LoadSpotifyAccessTokenAsync();
         if (storedAccessTokenResult.IsSuccess)
@@ -63,7 +63,7 @@ public class SpotifyAccessTokenMessageHandler(
             }
         }
 
-        var accessTokenResult = await CreateCompletelyNewAccessToken();
+        var accessTokenResult = await CreateCompletelyNewAccessToken(cancellationToken);
         if (!accessTokenResult.IsSuccess)
         {
             return "Unable to create new access token";
@@ -96,9 +96,10 @@ public class SpotifyAccessTokenMessageHandler(
         return refreshedAccessToken;
     }
 
-    private async Task<Result<SpotifyAccessToken, string>> CreateCompletelyNewAccessToken()
+    private async Task<Result<SpotifyAccessToken, string>> CreateCompletelyNewAccessToken(
+        CancellationToken cancellationToken)
     {
-        var callbackCodeResult = await AuthorizeUser();
+        var callbackCodeResult = await AuthorizeUser(cancellationToken);
         if (!callbackCodeResult.IsSuccess)
         {
             return callbackCodeResult.Error;
@@ -120,7 +121,7 @@ public class SpotifyAccessTokenMessageHandler(
         return accessToken;
     }
 
-    private async Task<Result<string, string>> AuthorizeUser()
+    private async Task<Result<string, string>> AuthorizeUser(CancellationToken cancellationToken)
     {
         var state = Guid.NewGuid().ToString();
         var authenticationUrl = CreateAuthorizeUrl(state);
@@ -129,7 +130,7 @@ public class SpotifyAccessTokenMessageHandler(
 
         await OpenBrowser(authenticationUrl);
 
-        var callbackCodeResult = await authenticationCallbackServer.WaitForCallbackCode(state);
+        var callbackCodeResult = await authenticationCallbackServer.WaitForCallbackCode(state, cancellationToken);
 
         return callbackCodeResult.Map(success => success, error => $"Login failed: {error}");
     }

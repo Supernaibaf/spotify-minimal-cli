@@ -12,9 +12,9 @@ public static class PreviousCommand
             .WithDescription("Skip to previous track in queue");
     }
 
-    private static async Task<int> Previous(ISpotifyApi spotifyApi)
+    private static async Task<int> Previous(ISpotifyApi spotifyApi, CoconaAppContext context)
     {
-        var previousResponse = await spotifyApi.PreviousAsync(new SkipToPreviousRequest());
+        var previousResponse = await spotifyApi.PreviousAsync(new SkipToPreviousRequest(), context.CancellationToken);
         if (!previousResponse.IsSuccessStatusCode)
         {
             await Console.Error.WriteLineAsync(

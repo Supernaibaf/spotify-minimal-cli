@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Cocona;
+using SpotifyMinimalCli;
 using SpotifyMinimalCli.Commands;
 using SpotifyMinimalCli.SpotifyApi;
 using SpotifyMinimalCli.SpotifyAuth;
@@ -23,6 +24,8 @@ builder.Services.AddSpotifyAuthServices();
 builder.Services.AddSpotifyApiServices();
 
 var app = builder.Build();
+
+app.UseCommandExceptionFilter();
 
 app.AddQueueCommand();
 app.AddNextCommand();

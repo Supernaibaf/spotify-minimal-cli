@@ -15,11 +15,12 @@ public static class QueueCommand
 
     private static async Task<int> Queue(
         [Argument] string[] trackNames,
-        ISpotifyApi spotifyApi)
+        ISpotifyApi spotifyApi,
+        CoconaAppContext context)
     {
         foreach (var trackName in trackNames)
         {
-            var searchResult = await SearchTrack(trackName, spotifyApi);
+            var searchResult = await SearchTrack(trackName, spotifyApi, context.CancellationToken);
             if (!searchResult.IsSuccess)
             {
                 await Console.Error.WriteLineAsync(searchResult.Error);
@@ -27,7 +28,8 @@ public static class QueueCommand
             }
 
             var queueResult = await spotifyApi.QueueTrackAsync(
-                new AddItemToPlaybackQueueRequest { Uri = searchResult.Value.Uri });
+                new AddItemToPlaybackQueueRequest { Uri = searchResult.Value.Uri },
+                context.CancellationToken);
             if (!queueResult.IsSuccessStatusCode)
             {
                 await Console.Error.WriteLineAsync(
@@ -41,7 +43,10 @@ public static class QueueCommand
         return 0;
     }
 
-    private static async Task<Result<TrackObject, string>> SearchTrack(string trackName, ISpotifyApi spotifyApi)
+    private static async Task<Result<TrackObject, string>> SearchTrack(
+        string trackName,
+        ISpotifyApi spotifyApi,
+        CancellationToken cancellationToken)
     {
         var searchResponse = await spotifyApi.SearchAsync(
             new SearchRequest
@@ -49,7 +54,8 @@ public static class QueueCommand
                 Query = trackName,
                 Type = SearchType.Track,
                 Limit = 1,
-            });
+            },
+            cancellationToken);
 
         if (!searchResponse.IsSuccessStatusCode)
         {
