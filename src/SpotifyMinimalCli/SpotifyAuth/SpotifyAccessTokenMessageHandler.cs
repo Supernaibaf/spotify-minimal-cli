@@ -18,12 +18,11 @@ public class SpotifyAccessTokenMessageHandler(
         CancellationToken cancellationToken)
     {
         var accessTokenResult = await LoadOrCreateAccessToken();
-        if (!accessTokenResult.IsSuccess)
+        if (accessTokenResult.IsSuccess)
         {
-            throw new HttpRequestException(accessTokenResult.Error);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResult.Value.AccessToken);
         }
 
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResult.Value.AccessToken);
         return await base.SendAsync(request, cancellationToken);
     }
 
