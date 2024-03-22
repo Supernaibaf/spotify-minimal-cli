@@ -12,17 +12,9 @@ public static class PreviousCommand
             .WithDescription("Skip to previous track in queue");
     }
 
-    private static async Task<int> Previous(ISpotifyAuthorizationService authorizationService, ISpotifyApi spotifyApi)
+    private static async Task<int> Previous(ISpotifyApi spotifyApi)
     {
-        var tokenResult = await authorizationService.GetAccessToken();
-
-        if (!tokenResult.IsSuccess)
-        {
-            await Console.Error.WriteLineAsync(tokenResult.Error);
-            return -1;
-        }
-
-        var previousResponse = await spotifyApi.PreviousAsync(new SkipToPreviousRequest(), tokenResult.Value);
+        var previousResponse = await spotifyApi.PreviousAsync(new SkipToPreviousRequest());
         if (!previousResponse.IsSuccessStatusCode)
         {
             await Console.Error.WriteLineAsync(

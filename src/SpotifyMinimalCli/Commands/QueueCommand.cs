@@ -15,20 +15,11 @@ public static class QueueCommand
 
     private static async Task<int> Queue(
         [Argument] string[] trackNames,
-        ISpotifyAuthorizationService authorizationService,
         ISpotifyApi spotifyApi)
     {
-        var tokenResult = await authorizationService.GetAccessToken();
-
-        if (!tokenResult.IsSuccess)
-        {
-            await Console.Error.WriteLineAsync(tokenResult.Error);
-            return -1;
-        }
-
         foreach (var trackName in trackNames)
         {
-            var searchResult = await SearchTrack(trackName, spotifyApi, tokenResult.Value);
+            var searchResult = await SearchTrack(trackName, spotifyApi);
             if (!searchResult.IsSuccess)
             {
                 await Console.Error.WriteLineAsync(searchResult.Error);
@@ -36,11 +27,7 @@ public static class QueueCommand
             }
 
             var queueResult = await spotifyApi.QueueTrackAsync(
-                new AddItemToPlaybackQueueRequest
-                {
-                    Uri = searchResult.Value.Uri,
-                },
-                tokenResult.Value);
+                new AddItemToPlaybackQueueRequest { Uri = searchResult.Value.Uri });
             if (!queueResult.IsSuccessStatusCode)
             {
                 await Console.Error.WriteLineAsync(
@@ -54,10 +41,7 @@ public static class QueueCommand
         return 0;
     }
 
-    private static async Task<Result<TrackObject, string>> SearchTrack(
-        string trackName,
-        ISpotifyApi spotifyApi,
-        string token)
+    private static async Task<Result<TrackObject, string>> SearchTrack(string trackName, ISpotifyApi spotifyApi)
     {
         var searchResponse = await spotifyApi.SearchAsync(
             new SearchRequest
@@ -65,8 +49,7 @@ public static class QueueCommand
                 Query = trackName,
                 Type = SearchType.Track,
                 Limit = 1,
-            },
-            token);
+            });
 
         if (!searchResponse.IsSuccessStatusCode)
         {

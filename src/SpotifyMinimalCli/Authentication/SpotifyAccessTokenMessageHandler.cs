@@ -1,45 +1,70 @@
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
-using SpotifyMinimalCli.Authentication;
+using SpotifyMinimalCli.SpotifyApi;
 using SpotifyMinimalCli.SpotifyApi.Authorization;
 
-namespace SpotifyMinimalCli.SpotifyApi;
+namespace SpotifyMinimalCli.Authentication;
 
-public class SpotifyAuthorizationService(
+public class SpotifyAccessTokenMessageHandler(
     ISpotifyAccountApi spotifyAccountApi,
     IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,
     IAuthenticationCallbackServer authenticationCallbackServer,
-    IAccessTokenStore accessTokenStore)
-    : ISpotifyAuthorizationService
+    IAccessTokenStore accessTokenStore) : DelegatingHandler
 {
-    public async Task<Result<string, string>> GetAccessToken()
+    protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        var accessTokenResult = await LoadOrCreateAccessToken();
+        if (!accessTokenResult.IsSuccess)
+        {
+            throw new HttpRequestException(accessTokenResult.Error);
+        }
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResult.Value.AccessToken);
+        return await base.SendAsync(request, cancellationToken);
+    }
+
+    private async Task<Result<SpotifyAccessToken, string>> LoadOrCreateAccessToken()
     {
         var storedAccessTokenResult = await accessTokenStore.LoadSpotifyAccessTokenAsync();
         if (storedAccessTokenResult.IsSuccess)
         {
-            return Result.Success<string, string>(storedAccessTokenResult.Value.AccessToken);
+            return storedAccessTokenResult.Value;
         }
 
+        var accessTokenResult = await CreateCompletelyNewAccessToken();
+        if (!accessTokenResult.IsSuccess)
+        {
+            return "Unable to create new access token";
+        }
+
+        return accessTokenResult.Value;
+    }
+
+    private async Task<Result<SpotifyAccessToken, string>> CreateCompletelyNewAccessToken()
+    {
         var callbackCodeResult = await AuthorizeUser();
         if (!callbackCodeResult.IsSuccess)
         {
-            return callbackCodeResult;
+            return callbackCodeResult.Error;
         }
 
         var newAccessTokenResult = await RequestAccessToken(callbackCodeResult.Value);
         if (!newAccessTokenResult.IsSuccess)
         {
-            return Result.Failure<string, string>(newAccessTokenResult.Error);
+            return newAccessTokenResult.Error;
         }
 
-        var storeResult =
-            await accessTokenStore.StoreSpotifyAccessTokenAsync(newAccessTokenResult.Value.ToSpotifyAccessToken());
+        var accessToken = newAccessTokenResult.Value.ToSpotifyAccessToken();
+        var storeResult = await accessTokenStore.StoreSpotifyAccessTokenAsync(accessToken);
         if (!storeResult.IsSuccess)
         {
             await Console.Error.WriteLineAsync(storeResult.Error);
         }
 
-        return Result.Success<string, string>(newAccessTokenResult.Value.AccessToken);
+        return accessToken;
     }
 
     private async Task<Result<string, string>> AuthorizeUser()

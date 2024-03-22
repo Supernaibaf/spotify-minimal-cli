@@ -28,7 +28,8 @@ builder.Services.AddOptions<SpotifyApiConfig>().BindConfiguration(SpotifyApiConf
 
 builder.Services.AddTransient<IAccessTokenStore, AccessTokenStore>();
 builder.Services.AddTransient<IAuthenticationCallbackServer, AuthenticationCallbackServer>();
-builder.Services.AddTransient<ISpotifyAuthorizationService, SpotifyAuthorizationService>();
+
+builder.Services.AddTransient<SpotifyAccessTokenMessageHandler>();
 
 builder.Services
     .AddRefitClient<ISpotifyAccountApi>()
@@ -50,7 +51,8 @@ builder.Services
         {
             var config = services.GetRequiredService<IOptions<SpotifyApiConfig>>();
             client.BaseAddress = config.Value.BaseAddress;
-        });
+        })
+    .AddHttpMessageHandler<SpotifyAccessTokenMessageHandler>();
 
 var app = builder.Build();
 
