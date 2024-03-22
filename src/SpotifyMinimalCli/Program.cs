@@ -30,5 +30,6 @@ app.UseCommandExceptionFilter();
 app.AddQueueCommand();
 app.AddNextCommand();
 app.AddPreviousCommand();
+app.AddRestartCommand();
 
 await app.RunAsync();

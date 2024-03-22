@@ -19,4 +19,7 @@ public interface ISpotifyApi
     Task<IApiResponse> QueueTrackAsync(
         [Query] AddItemToPlaybackQueueRequest request,
         CancellationToken cancellationToken);
+
+    [Put("/v1/me/player/seek")]
+    Task<IApiResponse> SeekToPositionAsync([Query] SeekToPositionRequest request, CancellationToken cancellationToken);
 }
