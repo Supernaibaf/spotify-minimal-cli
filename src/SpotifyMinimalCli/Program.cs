@@ -1,12 +1,8 @@
-﻿using System.Net.Http.Headers;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using Cocona;
-using Microsoft.Extensions.Options;
-using Refit;
-using SpotifyMinimalCli.Authentication;
 using SpotifyMinimalCli.Commands;
 using SpotifyMinimalCli.SpotifyApi;
+using SpotifyMinimalCli.SpotifyAuth;
 
 var executableDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 if (executableDirectory == null)
@@ -22,37 +18,8 @@ builder.Configuration
     .AddJsonFile("appsettings.json", false)
     .AddUserSecrets<Program>();
 
-builder.Services.AddOptions<AuthenticationCallbackConfig>().BindConfiguration(AuthenticationCallbackConfig.Key);
-builder.Services.AddOptions<SpotifyAccountApiConfig>().BindConfiguration(SpotifyAccountApiConfig.Key);
-builder.Services.AddOptions<SpotifyApiConfig>().BindConfiguration(SpotifyApiConfig.Key);
-
-builder.Services.AddTransient<IAccessTokenStore, AccessTokenStore>();
-builder.Services.AddTransient<IAuthenticationCallbackServer, AuthenticationCallbackServer>();
-
-builder.Services.AddTransient<SpotifyAccessTokenMessageHandler>();
-
-builder.Services
-    .AddRefitClient<ISpotifyAccountApi>()
-    .ConfigureHttpClient(
-        (services, client) =>
-        {
-            var config = services.GetRequiredService<IOptions<SpotifyAccountApiConfig>>();
-
-            client.BaseAddress = config.Value.BaseAddress;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                "Basic",
-                Convert.ToBase64String(Encoding.UTF8.GetBytes($"{config.Value.ClientId}:{config.Value.ClientSecret}")));
-        });
-
-builder.Services
-    .AddRefitClient<ISpotifyApi>()
-    .ConfigureHttpClient(
-        (services, client) =>
-        {
-            var config = services.GetRequiredService<IOptions<SpotifyApiConfig>>();
-            client.BaseAddress = config.Value.BaseAddress;
-        })
-    .AddHttpMessageHandler<SpotifyAccessTokenMessageHandler>();
+builder.Services.AddSpotifyAuthServices();
+builder.Services.AddSpotifyApiServices();
 
 var app = builder.Build();
 

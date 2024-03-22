@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-namespace SpotifyMinimalCli.Authentication;
+namespace SpotifyMinimalCli.SpotifyAuth.AccessTokenStore;
 
-public class AccessTokenStore : IAccessTokenStore
+public class SpotifyAccessTokenStore : ISpotifyAccessTokenStore
 {
     private static readonly string ApplicationDataDirectory = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

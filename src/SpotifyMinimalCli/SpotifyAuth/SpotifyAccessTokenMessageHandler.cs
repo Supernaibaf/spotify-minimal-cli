@@ -1,16 +1,17 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
-using SpotifyMinimalCli.SpotifyApi;
-using SpotifyMinimalCli.SpotifyApi.Authorization;
+using SpotifyMinimalCli.SpotifyAuth.AccessTokenStore;
+using SpotifyMinimalCli.SpotifyAuth.AccountApi;
+using SpotifyMinimalCli.SpotifyAuth.AuthCallback;
 
-namespace SpotifyMinimalCli.Authentication;
+namespace SpotifyMinimalCli.SpotifyAuth;
 
 public class SpotifyAccessTokenMessageHandler(
     ISpotifyAccountApi spotifyAccountApi,
     IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,
     IAuthenticationCallbackServer authenticationCallbackServer,
-    IAccessTokenStore accessTokenStore) : DelegatingHandler
+    ISpotifyAccessTokenStore spotifyAccessTokenStore) : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
@@ -28,7 +29,7 @@ public class SpotifyAccessTokenMessageHandler(
 
     private async Task<Result<SpotifyAccessToken, string>> LoadOrCreateAccessToken()
     {
-        var storedAccessTokenResult = await accessTokenStore.LoadSpotifyAccessTokenAsync();
+        var storedAccessTokenResult = await spotifyAccessTokenStore.LoadSpotifyAccessTokenAsync();
         if (storedAccessTokenResult.IsSuccess)
         {
             return storedAccessTokenResult.Value;
@@ -58,7 +59,7 @@ public class SpotifyAccessTokenMessageHandler(
         }
 
         var accessToken = newAccessTokenResult.Value.ToSpotifyAccessToken();
-        var storeResult = await accessTokenStore.StoreSpotifyAccessTokenAsync(accessToken);
+        var storeResult = await spotifyAccessTokenStore.StoreSpotifyAccessTokenAsync(accessToken);
         if (!storeResult.IsSuccess)
         {
             await Console.Error.WriteLineAsync(storeResult.Error);
@@ -96,7 +97,7 @@ public class SpotifyAccessTokenMessageHandler(
             return apiTokenResult.Content;
         }
 
-        return $"Access token request failed: {apiTokenResult.Error.GetSpotifyResponseErrorMessage()}";
+        return $"Access token request failed: {apiTokenResult.Error.Message}";
     }
 
     private static async Task OpenBrowser(Uri authenticationUrl)

@@ -1,6 +1,6 @@
-namespace SpotifyMinimalCli.Authentication;
+namespace SpotifyMinimalCli.SpotifyAuth.AccessTokenStore;
 
-public interface IAccessTokenStore
+public interface ISpotifyAccessTokenStore
 {
     Task<Result<SpotifyAccessToken, string>> LoadSpotifyAccessTokenAsync();
 

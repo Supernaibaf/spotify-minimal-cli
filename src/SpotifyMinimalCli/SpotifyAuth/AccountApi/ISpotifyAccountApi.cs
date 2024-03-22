@@ -1,7 +1,6 @@
 using Refit;
-using SpotifyMinimalCli.SpotifyApi.Authorization;
 
-namespace SpotifyMinimalCli.SpotifyApi;
+namespace SpotifyMinimalCli.SpotifyAuth.AccountApi;
 
 public interface ISpotifyAccountApi
 {

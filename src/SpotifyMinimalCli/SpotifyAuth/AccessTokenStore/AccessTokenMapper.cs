@@ -1,6 +1,6 @@
-using SpotifyMinimalCli.Authentication;
+using SpotifyMinimalCli.SpotifyAuth.AccountApi;
 
-namespace SpotifyMinimalCli.SpotifyApi.Authorization;
+namespace SpotifyMinimalCli.SpotifyAuth.AccessTokenStore;
 
 public static class AccessTokenMapper
 {

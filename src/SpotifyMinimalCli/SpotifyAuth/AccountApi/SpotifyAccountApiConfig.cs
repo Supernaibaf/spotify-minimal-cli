@@ -1,4 +1,4 @@
-namespace SpotifyMinimalCli.SpotifyApi;
+namespace SpotifyMinimalCli.SpotifyAuth.AccountApi;
 
 public class SpotifyAccountApiConfig
 {

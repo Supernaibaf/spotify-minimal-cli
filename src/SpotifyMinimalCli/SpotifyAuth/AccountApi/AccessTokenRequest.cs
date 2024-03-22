@@ -1,6 +1,6 @@
 using Refit;
 
-namespace SpotifyMinimalCli.SpotifyApi.Authorization;
+namespace SpotifyMinimalCli.SpotifyAuth.AccountApi;
 
 public class AccessTokenRequest
 {

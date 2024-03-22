@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApi.Authorization;
+namespace SpotifyMinimalCli.SpotifyAuth.AccountApi;
 
 public class AccessTokenResponse
 {
