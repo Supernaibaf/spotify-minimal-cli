@@ -32,7 +32,7 @@ public class AuthenticationCallbackServer(IOptions<AuthenticationCallbackConfig>
                 if (callbackState != state)
                 {
                     return TypedResults.File(
-                        LoadEmbeddedResource("CallbackPages.FailPage.html"),
+                        LoadEmbeddedResource("CallbackPages.FailurePage.html"),
                         MediaTypeNames.Text.Html);
                 }
 
@@ -40,7 +40,7 @@ public class AuthenticationCallbackServer(IOptions<AuthenticationCallbackConfig>
                 {
                     error = callbackError;
                     return TypedResults.File(
-                        LoadEmbeddedResource("CallbackPages.FailPage.html"),
+                        LoadEmbeddedResource("CallbackPages.FailurePage.html"),
                         MediaTypeNames.Text.Html);
                 }
 
