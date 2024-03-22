@@ -1,8 +1,8 @@
-using Refit;
+﻿using Refit;
 
 namespace SpotifyMinimalCli.SpotifyApi.Player;
 
-public class SkipToPreviousRequest
+public class PausePlaybackRequest
 {
     [AliasAs("device_id")]
     public string? DeviceId { get; init; }

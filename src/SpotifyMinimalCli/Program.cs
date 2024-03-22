@@ -31,5 +31,7 @@ app.AddQueueCommand();
 app.AddNextCommand();
 app.AddPreviousCommand();
 app.AddRestartCommand();
+app.AddStartCommand();
+app.AddPauseCommand();
 
 await app.RunAsync();

@@ -22,4 +22,10 @@ public interface ISpotifyApi
 
     [Put("/v1/me/player/seek")]
     Task<IApiResponse> SeekToPositionAsync([Query] SeekToPositionRequest request, CancellationToken cancellationToken);
+
+    [Put("/v1/me/player/pause")]
+    Task<IApiResponse> PausePlaybackAsync([Query] PausePlaybackRequest request, CancellationToken cancellationToken);
+
+    [Put("/v1/me/player/play")]
+    Task<IApiResponse> StartPlaybackAsync([Query] StartPlaybackRequest request, CancellationToken cancellationToken);
 }

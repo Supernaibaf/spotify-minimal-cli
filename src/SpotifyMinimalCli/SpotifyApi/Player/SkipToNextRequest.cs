@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+using Refit;
 
 namespace SpotifyMinimalCli.SpotifyApi.Player;
 
 public class SkipToNextRequest
 {
-    [JsonPropertyName("device_id")]
+    [AliasAs("device_id")]
     public string? DeviceId { get; init; }
 }
