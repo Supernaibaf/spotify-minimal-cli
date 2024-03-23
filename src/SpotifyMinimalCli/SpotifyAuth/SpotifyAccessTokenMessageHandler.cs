@@ -10,7 +10,7 @@ namespace SpotifyMinimalCli.SpotifyAuth;
 
 public class SpotifyAccessTokenMessageHandler(
     ISpotifyAccountApi spotifyAccountApi,
-    IOptions<SpotifyAccountApiConfig> spotifyAccountApiConfig,
+    IOptions<SpotifyAuthConfig> spotifyAuthConfig,
     IAuthenticationCallbackServer authenticationCallbackServer,
     ISpotifyAccessTokenStore spotifyAccessTokenStore,
     TimeProvider timeProvider) : DelegatingHandler
@@ -173,16 +173,16 @@ public class SpotifyAccessTokenMessageHandler(
         var queryString = QueryString.Create(
             new KeyValuePair<string, string?>[]
             {
-                new("client_id", spotifyAccountApiConfig.Value.ClientId),
+                new("client_id", spotifyAuthConfig.Value.ClientId),
                 new("response_type", "code"),
                 new("redirect_uri", authenticationCallbackServer.CallbackUrl.ToString()),
                 new("state", state),
-                new("scope", "user-modify-playback-state"),
+                new("scope", spotifyAuthConfig.Value.Scopes),
                 new("show_dialog", "true"),
             });
 
         return new Uri(
-            spotifyAccountApiConfig.Value.BaseAddress,
+            spotifyAuthConfig.Value.SpotifyAccountApiBaseAddress,
             $"/authorize{queryString.ToUriComponent()}");
     }
 }

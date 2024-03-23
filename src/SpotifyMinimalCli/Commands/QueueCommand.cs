@@ -1,5 +1,6 @@
 using Cocona;
 using SpotifyMinimalCli.SpotifyApi;
+using SpotifyMinimalCli.SpotifyApi.Common;
 using SpotifyMinimalCli.SpotifyApi.Player;
 using SpotifyMinimalCli.SpotifyApi.Search;
 
@@ -7,9 +8,9 @@ namespace SpotifyMinimalCli.Commands;
 
 public static class QueueCommand
 {
-    public static void AddQueueCommand(this CoconaApp builder)
+    public static void AddQueueCommand(this CoconaApp app)
     {
-        _ = builder.AddCommand("queue", Queue)
+        _ = app.AddCommand("queue", Queue)
             .WithDescription("Adds a track to the queue");
     }
 
@@ -38,7 +39,7 @@ public static class QueueCommand
             }
 
             Console.WriteLine(
-                $"Queued \"{searchResult.Value.Name}\" from {string.Join(", ", searchResult.Value.Artists.Select(a => a.Name))}");
+                $"Queued {searchResult.Value.DisplayValue}");
         }
 
         return 0;

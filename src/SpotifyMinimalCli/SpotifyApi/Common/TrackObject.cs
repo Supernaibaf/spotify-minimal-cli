@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApi.Search;
+namespace SpotifyMinimalCli.SpotifyApi.Common;
 
 public class TrackObject
 {
@@ -17,4 +17,7 @@ public class TrackObject
 
     [JsonPropertyName("artists")]
     public required IReadOnlyCollection<ArtistObject> Artists { get; init; }
+
+    [JsonIgnore]
+    public string DisplayValue => $"{Name} from {string.Join(", ", Artists.Select(a => a.Name))}";
 }

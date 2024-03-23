@@ -12,7 +12,7 @@ public static class SpotifyAuthRegistration
 {
     public static void AddSpotifyAuthServices(this IServiceCollection services)
     {
-        _ = services.AddOptions<SpotifyAccountApiConfig>().BindConfiguration(SpotifyAccountApiConfig.Key);
+        _ = services.AddOptions<SpotifyAuthConfig>().BindConfiguration(SpotifyAuthConfig.Key);
         _ = services.AddOptions<AuthenticationCallbackConfig>().BindConfiguration(AuthenticationCallbackConfig.Key);
 
         _ = services.AddTransient<ISpotifyAccessTokenStore, SpotifyAccessTokenStore>();
@@ -25,9 +25,9 @@ public static class SpotifyAuthRegistration
             .ConfigureHttpClient(
                 (serviceProvider, client) =>
                 {
-                    var config = serviceProvider.GetRequiredService<IOptions<SpotifyAccountApiConfig>>();
+                    var config = serviceProvider.GetRequiredService<IOptions<SpotifyAuthConfig>>();
 
-                    client.BaseAddress = config.Value.BaseAddress;
+                    client.BaseAddress = config.Value.SpotifyAccountApiBaseAddress;
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
                         "Basic",
                         Convert.ToBase64String(

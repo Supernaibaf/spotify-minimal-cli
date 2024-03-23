@@ -33,5 +33,6 @@ app.AddPreviousCommand();
 app.AddRestartCommand();
 app.AddStartCommand();
 app.AddPauseCommand();
+app.AddListCommand();
 
 await app.RunAsync();

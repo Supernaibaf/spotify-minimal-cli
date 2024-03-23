@@ -28,4 +28,7 @@ public interface ISpotifyApi
 
     [Put("/v1/me/player/play")]
     Task<IApiResponse> StartPlaybackAsync([Query] StartPlaybackRequest request, CancellationToken cancellationToken);
+
+    [Get("/v1/me/player/queue")]
+    Task<ApiResponse<GetUserQueueResponse>> GetUserQueueAsync(CancellationToken cancellationToken);
 }

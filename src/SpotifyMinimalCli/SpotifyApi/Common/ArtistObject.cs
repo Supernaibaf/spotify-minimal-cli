@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SpotifyMinimalCli.SpotifyApi.Search;
+namespace SpotifyMinimalCli.SpotifyApi.Common;
 
 public class ArtistObject
 {
